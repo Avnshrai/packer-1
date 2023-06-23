@@ -1,4 +1,4 @@
-## Grafna
+## Grafana Packer HCL File
 packer {
   required_plugins {
     docker = {
