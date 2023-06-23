@@ -9,7 +9,7 @@ packer {
 }
 
 source "docker" "ubuntu" {
-  image  = "siddharth387/coredge-base-image:177-6f0500e-coredge-base-image-1"
+  image  = "coredgeio/ubuntu-base-beta:v1"
   commit = true
   changes = [
     "ENV APP_VERSION 9.5.3",
