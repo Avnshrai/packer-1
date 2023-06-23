@@ -1,0 +1,31 @@
+name: Admin-Console-main - Docker Image CI
+on:
+  push:
+    branches: [ main ]
+    paths: 
+    - 'admin-console/**'
+    
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to docker hub
+      env:
+        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+    - name: Prepare image tag
+      run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV    
+    - name: Build docker image for admin-console
+      run: docker build admin-console/. --file admin-console/Dockerfile --tag build/yntraa_admin_console:${{ env.TAG }}
+    - name: Push the docker image
+      env:
+        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+      run: |
+        docker tag build/yntraa_admin_console:${{ env.TAG }} coredgeio/yntraa_admin_console:${{ env.TAG }}
+        docker tag build/yntraa_admin_console:${{ env.TAG }} coredgeio/yntraa_admin_console:latest
+        
+        docker push coredgeio/yntraa_admin_console:${{ env.TAG }}
+        docker push coredgeio/yntraa_admin_console:latest
