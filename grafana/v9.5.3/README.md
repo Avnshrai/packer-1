@@ -111,7 +111,3 @@ post-processor "docker-tag" {
 }
 ```
 `Post-Processor` section helps to provide image tag. It will build the image thru packer and make it available locally with name & tag provided in the `Post-Processor` section.
-
-
-### Contributors
-[![Rishabh Aggarwal]]

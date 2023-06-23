@@ -63,15 +63,13 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      # "/bin/bash -o pipefail -c",
       "apt-get -y install wget ca-certificates curl libfontconfig procps",
-      # "mkdir /opt/coredge",
       "mkdir /s5cmd && cd /s5cmd",
       "wget https://github.com/peak/s5cmd/releases/download/v2.1.0/s5cmd_2.1.0_Linux-64bit.tar.gz",
       "tar -xzvf s5cmd_2.1.0_Linux-64bit.tar.gz",
       "chmod +x s5cmd",
       "cp /s5cmd/s5cmd /sbin",
-      # "mkdir -p /tmp/coredge/pkg/cache/ && cd /tmp/coredge/pkg/cache/",
+      "mkdir -p /tmp/coredge/pkg/cache/ && cd /tmp/coredge/pkg/cache/",
       "s5cmd --stat cp 's3://coredgeapplications/grafana/v9.5.3/grafana-9.5.3-0-linux-amd64-debian-11.tar.gz' .",
       "tar -zxf grafana-9.5.3-0-linux-amd64-debian-11.tar.gz -C /opt/coredge --strip-components=2",
       "rm -rf grafana-9.5.3-0-linux-amd64-debian-11.tar.gz{,.sha256}",
@@ -81,11 +79,13 @@ build {
       "apt-get autoremove --purge -y curl wget",
       "apt-get update && apt-get upgrade -y && apt-get clean",
       "rm -rf /var/lib/apt/lists /var/cache/apt/archives",
-      "rm -rf /s5cmd && rm /sbin/s5cmd && rm -rf /root/.aws"    ]
+      "rm -rf /s5cmd && rm /sbin/s5cmd && rm -rf /root/.aws",
+      "rm -rf /tmp/coredge/pkg/cache/grafana-9.5.3-0-linux-amd64-debian-11.tar.gz{,.sha256}"
+    ]
   }
   
   post-processor "docker-tag" {
-    repository = "coredge/grafana"
+    repository = "coredge/baseos-beta"
     tags = ["v9.5.3-0"]
   }
 }
