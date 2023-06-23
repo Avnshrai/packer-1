@@ -29,7 +29,7 @@ source "docker" "ubuntu" {
 }
 ```
 
-Choosing our own ubuntu base image as `siddharth387/coredge-base-image:136-a71e788-coredge-base-image-1` and defining environment variables, workdir, CMD and Entrypoint for `grafana` service. This is sort of a docker override.
+Choosing our own ubuntu base image as `coredgeio/ubuntu-base-beta:v1` and defining environment variables, workdir, CMD and Entrypoint for `grafana` service. This is sort of a docker override.
 
 ```hcl
 build {
