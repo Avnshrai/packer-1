@@ -85,7 +85,7 @@ build {
   }
   
   post-processor "docker-tag" {
-    repository = "coredge/baseos-beta"
+    repository = "coredge/grafana"
     tags = ["v9.5.3-0"]
   }
 }
