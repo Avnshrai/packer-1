@@ -1,31 +1,55 @@
-name: Admin-Console-main - Docker Image CI
+name: Grafana Packer Image CI Build
+
 on:
   push:
     branches: [ main ]
     paths: 
-    - 'admin-console/**'
-    
+    - 'grafana/v9.5.3/**'
+
+env:
+  PRODUCT_VERSION: "latest" # or: "latest"
+
 jobs:
-  build:
-    runs-on: self-hosted
+  packer:
+    runs-on: ubuntu-latest
+    name: Run Packer
     steps:
-    - uses: actions/checkout@v2
-    - name: Login to docker hub
-      env:
-        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-      run: docker login -u $DOCKER_USER -p $DOCKER_PWD
-    - name: Prepare image tag
-      run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV    
-    - name: Build docker image for admin-console
-      run: docker build admin-console/. --file admin-console/Dockerfile --tag build/yntraa_admin_console:${{ env.TAG }}
-    - name: Push the docker image
-      env:
-        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-      run: |
-        docker tag build/yntraa_admin_console:${{ env.TAG }} coredgeio/yntraa_admin_console:${{ env.TAG }}
-        docker tag build/yntraa_admin_console:${{ env.TAG }} coredgeio/yntraa_admin_console:latest
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to docker hub
+        env:
+          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+          run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+      
+      - name: Prepare image tag
+        run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: ${{ env.PRODUCT_VERSION }}
+
+      - name: Run `packer init`
+        id: init
+        run: "packer init grafana/v9.5.3/grafana.pkr.hcl"
+
+      - name: Run `packer validate`
+        id: validate
+        run: "packer validate grafana/v9.5.3/grafana.pkr.hcl"
+      
+      - name: Run `packer build`
+        id: build
+        run: "packer build grafana/v9.5.3/grafana.pkr.hcl"
         
-        docker push coredgeio/yntraa_admin_console:${{ env.TAG }}
-        docker push coredgeio/yntraa_admin_console:latest
+      - name: Tag and Push the packer image to dockerhub
+        env:
+          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+        run: |
+          docker tag coredge/grafana:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
+          docker tag coredge/grafana:v9.5.3-0 rishabh0197/grafana:latest
+
+          docker push coredge/grafana:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
+          docker push coredge/grafana:v9.5.3-0 rishabh0197/grafana:latest
