@@ -1,4 +1,4 @@
-## Grafna
+## Grafana packer ##
 packer {
   required_plugins {
     docker = {
