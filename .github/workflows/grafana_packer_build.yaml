@@ -16,14 +16,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Login to docker hub
-        env:
-          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-        run: docker login -u $DOCKER_USER -p $DOCKER_PWD
-      
-      - name: Prepare image tag
-        run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
+#       - name: Login to docker hub
+#         env:
+#           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+#           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+#         run: docker login -u $DOCKER_USER -p $DOCKER_PWD
 
       - name: Setup `packer`
         uses: nomuken/setup-packer@v1
@@ -31,29 +28,38 @@ jobs:
         with:
           version: ${{ env.PRODUCT_VERSION }}
       
-      - name: Configure AWS credentials
-        run: |
-          cd grafana/v9.5.3/ && touch credentials
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> credentials
+#       - name: Configure AWS credentials
+#         run: |
+#           cd grafana/v9.5.3/ && touch credentials
+#           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> credentials
+#           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> credentials
 
-      - name: Create AWS configuration file
+#       - name: Create AWS configuration file
+#         run: |
+#           cd grafana/v9.5.3/ && touch config
+#           echo "[default]" >> config
+#           echo "region = ap-south-1" >> config
+#           echo "output = table" >> config
+      - name: Install AWS CLI
         run: |
-          cd grafana/v9.5.3/ && touch config
-          echo "[default]" >> config
-          echo "region = ap-south-1" >> config
-          echo "output = table" >> config
-
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          aws --version
+      
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-south-1
+          aws configure set default.output table
+          "cd grafana/v9.5.3/ && sudo cp ~/.aws/credentials . && sudo cp ~/.aws/config ."
+          
       - name: Run `packer init`
         id: init
         run: "cd grafana/v9.5.3/ && packer init grafana.pkr.hcl"
-      
-#       - name: Configure AWS credentials from Test account
-#         uses: aws-actions/configure-aws-credentials@v2
-#         env:
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           AWS_DEFAULT_REGION: 'ap-south-1'
       
       - name: Run `packer validate`
         id: validate
@@ -62,12 +68,17 @@ jobs:
       - name: Run `packer build`
         id: build
         run: "cd grafana/v9.5.3/ && packer build grafana.pkr.hcl"
-        
+      
+      - name: Prepare image tag
+        run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
+      
       - name: Tag and Push the packer image to dockerhub
         env:
           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
         run: |
+          run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+          
           docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
           docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:latest
 
