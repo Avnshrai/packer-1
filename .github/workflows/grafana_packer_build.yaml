@@ -30,11 +30,31 @@ jobs:
         id: setup
         with:
           version: ${{ env.PRODUCT_VERSION }}
+      
+      - name: Configure AWS credentials
+        run: |
+          cd grafana/v9.5.3/ && touch credentials
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> credentials
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> credentials
+
+      - name: Create AWS configuration file
+        run: |
+          cd grafana/v9.5.3/ && touch config
+          echo "[default]" >> config
+          echo "region = ap-south-1" >> config
+          echo "output = table" >> config
 
       - name: Run `packer init`
         id: init
         run: "cd grafana/v9.5.3/ && packer init grafana.pkr.hcl"
-
+      
+#       - name: Configure AWS credentials from Test account
+#         uses: aws-actions/configure-aws-credentials@v2
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: 'ap-south-1'
+      
       - name: Run `packer validate`
         id: validate
         run: "cd grafana/v9.5.3/ && packer validate grafana.pkr.hcl"
