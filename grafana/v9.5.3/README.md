@@ -1,4 +1,4 @@
-# How we are using Packer
+## How we are using Packer
 
 ```hcl
 packer {
