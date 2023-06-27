@@ -1,4 +1,4 @@
-## Grafana Packer HCL File
+## Grafna
 packer {
   required_plugins {
     docker = {
@@ -72,20 +72,20 @@ build {
       "mkdir -p /tmp/coredge/pkg/cache/ && cd /tmp/coredge/pkg/cache/",
       "s5cmd --stat cp 's3://coredgeapplications/grafana/v9.5.3/grafana-9.5.3-0-linux-amd64-debian-11.tar.gz' .",
       "tar -zxf grafana-9.5.3-0-linux-amd64-debian-11.tar.gz -C /opt/coredge --strip-components=2",
-      "rm -rf grafana-9.5.3-0-linux-amd64-debian-11.tar.gz{,.sha256}",
+      "rm -rf grafana-9.5.3-0-linux-amd64-debian-11.tar.gz",
+      "rm -rf /tmp/coredge/pkg/cache/grafana-9.5.3-0-linux-amd64-debian-11.tar.gz",
       "sudo chmod g+rwX /opt/coredge/",
       "/bin/bash -o pipefail -c '/opt/coredge/scripts/grafana/postunpack.sh'",
-      "chown -R core:root /opt/coredge/",
+      "chown -R core:core /opt/coredge/",
       "apt-get autoremove --purge -y curl wget",
       "apt-get update && apt-get upgrade -y && apt-get clean",
       "rm -rf /var/lib/apt/lists /var/cache/apt/archives",
-      "rm -rf /s5cmd && rm /sbin/s5cmd && rm -rf /root/.aws",
-      "rm -rf /tmp/coredge/pkg/cache/grafana-9.5.3-0-linux-amd64-debian-11.tar.gz{,.sha256}"
+      "rm -rf /s5cmd && rm /sbin/s5cmd && rm -rf /root/.aws"
     ]
   }
-  
+
   post-processor "docker-tag" {
-    repository = "coredge/grafana"
+    repository = "coredge/baseos-beta"
     tags = ["v9.5.3-0"]
   }
 }
