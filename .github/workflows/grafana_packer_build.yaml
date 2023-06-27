@@ -33,23 +33,23 @@ jobs:
 
       - name: Run `packer init`
         id: init
-        run: "packer init grafana/v9.5.3/grafana.pkr.hcl"
+        run: "cd grafana/v9.5.3/ && packer init grafana.pkr.hcl"
 
       - name: Run `packer validate`
         id: validate
-        run: "packer validate grafana/v9.5.3/grafana.pkr.hcl"
+        run: "cd grafana/v9.5.3/ && packer validate grafana.pkr.hcl"
       
       - name: Run `packer build`
         id: build
-        run: "packer build grafana/v9.5.3/grafana.pkr.hcl"
+        run: "cd grafana/v9.5.3/ && packer build grafana.pkr.hcl"
         
       - name: Tag and Push the packer image to dockerhub
         env:
           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
         run: |
-          docker tag coredge/grafana:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
-          docker tag coredge/grafana:v9.5.3-0 rishabh0197/grafana:latest
+          docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
+          docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:latest
 
-          docker push coredge/grafana:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
-          docker push coredge/grafana:v9.5.3-0 rishabh0197/grafana:latest
+          docker push rishabh0197/grafana:${{ env.TAG }}
+          docker push rishabh0197/grafana:latest
