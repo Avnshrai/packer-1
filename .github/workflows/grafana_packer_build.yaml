@@ -76,7 +76,7 @@ jobs:
           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
         run: |
-          run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+          docker login -u $DOCKER_USER -p $DOCKER_PWD
           
           docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:${{ env.TAG }}
           docker tag coredge/baseos-beta:v9.5.3-0 rishabh0197/grafana:latest
