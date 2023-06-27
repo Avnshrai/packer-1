@@ -7,7 +7,7 @@ on:
     - 'grafana/v9.5.3/**'
 
 env:
-  PRODUCT_VERSION: "latest" # or: "latest"
+  PRODUCT_VERSION: "v1.6.6" # or: "latest"
 
 jobs:
   packer:
@@ -26,7 +26,7 @@ jobs:
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
 
       - name: Setup `packer`
-        uses: hashicorp/setup-packer@main
+        uses: nomuken/setup-packer@v1
         id: setup
         with:
           version: ${{ env.PRODUCT_VERSION }}
