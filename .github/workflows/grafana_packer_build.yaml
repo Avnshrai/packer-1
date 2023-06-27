@@ -20,7 +20,7 @@ jobs:
         env:
           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-          run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+        run: docker login -u $DOCKER_USER -p $DOCKER_PWD
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
