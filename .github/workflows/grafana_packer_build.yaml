@@ -8,6 +8,7 @@ on:
 
 env:
   PRODUCT_VERSION: "v1.6.6" # or: "latest"
+  DST_DIR: "grafana/v9.5.3/"
 
 jobs:
   packer:
@@ -28,27 +29,15 @@ jobs:
         with:
           version: ${{ env.PRODUCT_VERSION }}
       
-#       - name: Configure AWS credentials
-#         run: |
-#           cd grafana/v9.5.3/ && touch credentials
-#           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> credentials
-#           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> credentials
-
-#       - name: Create AWS configuration file
-#         run: |
-#           cd grafana/v9.5.3/ && touch config
-#           echo "[default]" >> config
-#           echo "region = ap-south-1" >> config
-#           echo "output = table" >> config
-      
-      - name: Configure AWS CLI
+      - name: AWS Configure
+        id: configure
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ap-south-1
           aws configure set default.output table
           
-      - name: Verify AWS CLI Configuration
+      - name: Verify AWS Configuration
         run: aws sts get-caller-identity
         
       - name: Copy AWS Credentials and Config
@@ -68,10 +57,29 @@ jobs:
         id: build
         run: "cd grafana/v9.5.3/ && packer build grafana.pkr.hcl"
       
+      - name: Image Scan
+        uses: aquasecurity/trivy-action@master
+        id: scan
+        with:
+          image-ref: 'coredge/baseos-beta:v9.5.3-0'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+#           exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: Upload Trivy Image scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'image'
+      
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
       
       - name: Tag and Push the packer image to dockerhub
+        id: push
         env:
           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
