@@ -60,7 +60,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-image-results.sarif'
 #           exit-code: '1'
-          ignore-unfixed: true
+          ignore-unfixed: false
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
       
@@ -69,7 +69,7 @@ jobs:
       
       - name: Upload Trivy Image scan results
         uses: github/codeql-action/upload-sarif@v2
-        if: always()
+#         if: always()
         with:
           sarif_file: 'trivy-image-results.sarif'
       
