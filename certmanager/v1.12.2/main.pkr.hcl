@@ -1,4 +1,4 @@
-#### Cert-manager ###
+### Cert-manager ###
 packer {
   required_plugins {
     docker = {
