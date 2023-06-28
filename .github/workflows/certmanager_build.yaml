@@ -42,15 +42,15 @@ jobs:
           
       - name: Run `packer init`
         id: init
-        run: "cd $DST_DIR && packer init grafana.pkr.hcl"
+        run: "cd $DST_DIR && packer init main.pkr.hcl"
       
       - name: Run `packer validate`
         id: validate
-        run: "cd $DST_DIR && packer validate grafana.pkr.hcl"
+        run: "cd $DST_DIR && packer validate main.pkr.hcl"
       
       - name: Run `packer build`
         id: build
-        run: "cd $DST_DIR && packer build grafana.pkr.hcl"
+        run: "cd $DST_DIR && packer build main.pkr.hcl"
       
       - name: Image Scan
         uses: aquasecurity/trivy-action@master
