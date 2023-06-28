@@ -1,0 +1,88 @@
+name: Grafana Packer Image CI Build
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+    - 'certmanager/v1.12.2/**'
+
+env:
+  PRODUCT_VERSION: "v1.6.6" # or: "latest"
+  DST_DIR: "certmanager/v1.12.2/"
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: Run Packer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup `packer`
+        uses: nomuken/setup-packer@v1
+        id: setup
+        with:
+          version: ${{ env.PRODUCT_VERSION }}
+      
+      - name: AWS Configure
+        id: configure
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-south-1
+          aws configure set default.output table
+          
+      - name: Verify AWS Configuration
+        run: aws sts get-caller-identity
+        
+      - name: Copy AWS Credentials and Config
+        run: |
+          cp $HOME/.aws/credentials $DST_DIR
+          cp $HOME/.aws/config $DST_DIR
+          
+      - name: Run `packer init`
+        id: init
+        run: "cd $DST_DIR && packer init grafana.pkr.hcl"
+      
+      - name: Run `packer validate`
+        id: validate
+        run: "cd $DST_DIR && packer validate grafana.pkr.hcl"
+      
+      - name: Run `packer build`
+        id: build
+        run: "cd $DST_DIR && packer build grafana.pkr.hcl"
+      
+      - name: Image Scan
+        uses: aquasecurity/trivy-action@master
+        id: scan
+        with:
+          image-ref: 'coredge/certmanager:test'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+#           exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+      
+      - name: Upload Trivy Image scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'image'
+      
+      - name: Prepare image tag
+        run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
+      
+      - name: Tag and Push the packer image to dockerhub
+        id: push
+        env:
+          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PWD
+          
+          docker tag coredge/certmanager:test rishabh0197/certmanager:${{ env.TAG }}
+          docker tag coredge/certmanager:test rishabh0197/certmanager:latest
+
+          docker push rishabh0197/certmanager:${{ env.TAG }}
+          docker push rishabh0197/certmanager:latest
