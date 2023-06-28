@@ -65,13 +65,13 @@ jobs:
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
       
       - name: Checking trivy scan file
-        run: cat trivy-image-results.sari
+        run: cat trivy-image-results.sarif
       
       - name: Upload Trivy Image scan results
         uses: github/codeql-action/upload-sarif@v2
+        if: always()
         with:
           sarif_file: 'trivy-image-results.sarif'
-          category: 'image'
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
