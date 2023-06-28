@@ -59,7 +59,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         id: scan
         with:
-          image-ref: 'coredge/$APP_NAME:test'
+          image-ref: 'coredge/${{ env.APP_NAME }}:test'
           format: 'sarif'
           output: 'trivy-image-results.sarif'
 #           exit-code: '1'
