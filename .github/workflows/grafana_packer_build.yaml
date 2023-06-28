@@ -7,7 +7,7 @@ on:
     - 'grafana/v9.5.3/**'
 
 env:
-  PRODUCT_VERSION: "latest" # or: "latest"
+  PACKER_VERSION: "latest" # or: "latest"
   DST_DIR: "grafana/v9.5.3/"
 
 jobs:
