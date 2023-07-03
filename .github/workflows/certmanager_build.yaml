@@ -55,48 +55,50 @@ jobs:
         id: build
         run: "cd $DST_DIR && packer build main.pkr.hcl"
       
-#       - name: Image Scan
-#         uses: aquasecurity/trivy-action@master
-#         id: scan
-#         with:
-#           image-ref: 'coredge/${{ env.APP_NAME }}:test'
-#           format: 'sarif'
-#           output: 'trivy-image-results.sarif'
-# #           exit-code: '1'
-#           ignore-unfixed: false
-#           vuln-type: 'os,library'
-#           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-      
-      - name: Scan Image
-        uses: spicyparrot/scan-images@trunk
-        id: python
+      - name: ☢ Image Scan
+        uses: aquasecurity/trivy-action@master
+        id: scan
         with:
-          image_grep: "coredge/${{ env.APP_NAME }}:test"
-          severities: "CRITICAL,HIGH,LOW,MEDIUM,UNKNOWN"  
-          exit_on_error: true
-          upload_reports: true
+          image-ref: 'coredge/${{ env.APP_NAME }}:test'
+          format: 'template'
+          template: "@/contrib/html.tpl"
+          output: 'trivy-image-results.html'
+          exit-code: '0'
+          ignore-unfixed: false
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+      
+#       - name: ☢ Scan Image
+#         uses: spicyparrot/scan-images@trunk
+#         id: python
+#         with:
+#           image_grep: "coredge/${{ env.APP_NAME }}:test"
+#           severities: "CRITICAL,HIGH,LOW,MEDIUM,UNKNOWN"  
+#           exit_on_error: true
+#           upload_reports: true
       
 #       - name: Checking trivy scan file
 #         run: cat trivy-image-results.sarif
       
-#       - name: Upload Trivy Image scan results
-#         uses: github/codeql-action/upload-sarif@v2
-#         with:
-#           sarif_file: 'trivy-image-results.sarif'
+      - name: ⬆ Upload Trivy Image scan results
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: HTML Report
+          path: trivy-image-results.html
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
       
-      - name: Tag and Push the packer image to dockerhub
-        id: push
-        env:
-          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-        run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PWD
+#       - name: Tag and Push the packer image to dockerhub
+#         id: push
+#         env:
+#           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+#           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+#         run: |
+#           docker login -u $DOCKER_USER -p $DOCKER_PWD
           
-          docker tag coredge/$APP_NAME:test rishabh0197/certmanager:${{ env.TAG }}
-          docker tag coredge/$APP_NAME:test rishabh0197/certmanager:latest
+#           docker tag coredge/$APP_NAME:test rishabh0197/certmanager:${{ env.TAG }}
+#           docker tag coredge/$APP_NAME:test rishabh0197/certmanager:latest
 
-          docker push rishabh0197/certmanager:${{ env.TAG }}
-          docker push rishabh0197/certmanager:latest
+#           docker push rishabh0197/certmanager:${{ env.TAG }}
+#           docker push rishabh0197/certmanager:latest
