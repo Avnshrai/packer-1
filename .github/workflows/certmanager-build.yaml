@@ -68,37 +68,25 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
       
-#       - name: ☢ Scan Image
-#         uses: spicyparrot/scan-images@trunk
-#         id: python
-#         with:
-#           image_grep: "coredge/${{ env.APP_NAME }}:test"
-#           severities: "CRITICAL,HIGH,LOW,MEDIUM,UNKNOWN"  
-#           exit_on_error: true
-#           upload_reports: true
-      
-#       - name: Checking trivy scan file
-#         run: cat trivy-image-results.sarif
-      
       - name: ⬆ Upload Trivy Image scan results
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
-          name: HTML Report
+          name: Trivy Scan HTML Report
           path: trivy-image-results.html
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
       
-#       - name: Tag and Push the packer image to dockerhub
-#         id: push
-#         env:
-#           DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-#           DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-#         run: |
-#           docker login -u $DOCKER_USER -p $DOCKER_PWD
+      - name: Tag and Push the packer image to dockerhub
+        id: push
+        env:
+          DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+          DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PWD
           
-#           docker tag coredge/$APP_NAME:test rishabh0197/certmanager:${{ env.TAG }}
-#           docker tag coredge/$APP_NAME:test rishabh0197/certmanager:latest
+          docker tag coredge/$APP_NAME:test rishabh0197/certmanager:${{ env.TAG }}
+          docker tag coredge/$APP_NAME:test rishabh0197/certmanager:latest
 
-#           docker push rishabh0197/certmanager:${{ env.TAG }}
-#           docker push rishabh0197/certmanager:latest
+          docker push rishabh0197/certmanager:${{ env.TAG }}
+          docker push rishabh0197/certmanager:latest
