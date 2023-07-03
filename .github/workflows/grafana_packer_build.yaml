@@ -7,7 +7,7 @@ on:
     - 'grafana/v9.5.3/**'
 
 env:
-  PACKER_VERSION: "latest" # or: "latest"
+  PACKER_VERSION: "latest"
   DST_DIR: "grafana/v9.5.3/"
 
 jobs:
@@ -52,27 +52,24 @@ jobs:
         id: build
         run: "cd grafana/v9.5.3/ && packer build grafana.pkr.hcl"
       
-      - name: Image Scan
+      - name: ☢ Image Scan
         uses: aquasecurity/trivy-action@master
         id: scan
         with:
           image-ref: 'coredge/baseos-beta:v9.5.3-0'
-          scan-type: 'image'
-          format: 'sarif'
-          output: 'trivy-image-results.sarif'
-#           exit-code: '1'
+          format: 'template'
+          template: "@/contrib/html.tpl"
+          output: 'trivy-image-results.html'
+          exit-code: '0'
           ignore-unfixed: false
           vuln-type: 'os,library'
-          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
       
-      - name: Checking trivy scan file
-        run: cat trivy-image-results.sarif
-      
-      - name: Upload Trivy Image scan results
-        uses: github/codeql-action/upload-sarif@v2
-#         if: always()
+      - name: ⬆ Upload Trivy Image scan results
+        uses: actions/upload-artifact@v3.1.2
         with:
-          sarif_file: 'trivy-image-results.sarif'
+          name: Trivy Scan HTML Report
+          path: trivy-image-results.html
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
