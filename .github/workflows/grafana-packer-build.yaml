@@ -7,7 +7,10 @@ on:
     - 'grafana/v9.5.3/**'
 
 env:
-  PACKER_VERSION: "latest"
+  PACKER_VERSION: "latest" # or: "latest"
+  REPO_NAME: "coredgeio"
+  APP_NAME: "certmanager"
+  APP_VERSION: "v1.12.2"
   DST_DIR: "grafana/v9.5.3/"
 
 jobs:
@@ -59,8 +62,8 @@ jobs:
           image-ref: 'coredge/baseos-beta:v9.5.3-0'
           format: 'template'
           template: "@/contrib/html.tpl"
-          output: 'trivy-image-results.html'
-          exit-code: '0'
+          output: '${{ env.APP_NAME }}-${{ env.APP_VERSION }}-trivy-results.html'
+          exit-code: '1'
           ignore-unfixed: false
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
@@ -68,8 +71,8 @@ jobs:
       - name: ⬆ Upload Trivy Image scan results
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: Trivy Scan HTML Report
-          path: trivy-image-results.html
+          name: Grafana_Trivy_Scan_HTML_Report
+          path: '${{ env.APP_NAME }}-${{ env.APP_VERSION }}-trivy-results.html'
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
