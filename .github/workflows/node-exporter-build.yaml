@@ -55,14 +55,24 @@ jobs:
         id: build
         run: "cd $DST_DIR && packer build main.pkr.hcl"
       
-      - name: Scan Image
-        uses: spicyparrot/scan-images@trunk
+      - name: ☢ Image Scan
+        uses: aquasecurity/trivy-action@master
         id: scan
         with:
           image_grep: "coredge/${{ env.APP_NAME }}-packer:v1"
-          severities: "CRITICAL,HIGH,LOW,MEDIUM,UNKNOWN"  
-          exit_on_error: true
-          upload_reports: true
+          format: 'template'
+          template: "@/contrib/html.tpl"
+          output: 'trivy-image-results.html'
+          exit-code: '0'
+          ignore-unfixed: false
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+      
+      - name: ⬆ Upload Trivy Image scan results
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: Trivy Scan HTML Report
+          path: trivy-image-results.html
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
