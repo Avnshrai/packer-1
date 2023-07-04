@@ -1,0 +1,37 @@
+name: Coredge Base Image Scan
+
+on: [workflow_dispatch]
+#   push:
+#     branches: [ main ]
+#     paths: 
+#     - ''
+
+jobs:
+  image-scanning:
+    runs-on: ubuntu-latest
+    name: Scan Container Images
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Pull Docker Image
+        run: docker pull coredgeio/ubuntu-base-beta:v1
+      
+      - name: ☢ Image Scan
+        uses: aquasecurity/trivy-action@master
+        id: scan
+        with:
+          image-ref: "coredgeio/ubuntu-base-beta:v1"
+          format: 'template'
+          template: "@/contrib/html.tpl"
+          output: 'coredge-base-image-trivy-results.html'
+          exit-code: '0'
+          ignore-unfixed: false
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+      
+      - name: ⬆ Upload Trivy Image scan results
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: Coredge Base Image Trivy Scan HTML Report
+          path: coredge-base-image-trivy-results.html
