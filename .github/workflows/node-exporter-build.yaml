@@ -72,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           name: Node Exporter Trivy Scan HTML Report
-          path: trivy-image-results.html
+          path: node-exporter-trivy-image-results.html
       
       - name: Prepare image tag
         run: echo "TAG=$(date +'%F-%H-%M-%S')" >> $GITHUB_ENV  
