@@ -1,4 +1,4 @@
-#### Node Exporter Packer file #####
+### Node Exporter Packer file #####
 packer {
   required_plugins {
     docker = {
