@@ -59,11 +59,11 @@ jobs:
         uses: aquasecurity/trivy-action@master
         id: scan
         with:
-          image-ref: 'coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION }'
+          image-ref: 'coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION }}'
           format: 'template'
           template: "@/contrib/html.tpl"
           output: '${{ env.APP_NAME }}-${{ env.APP_VERSION }}-trivy-results.html'
-          #exit-code: '1'
+#           exit-code: '1'
           ignore-unfixed: false
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
@@ -85,8 +85,8 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PWD
           
-          docker tag coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION } rishabh0197/${{ env.APP_NAME }}:${{ env.TAG }}
-          docker tag coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION } rishabh0197/${{ env.APP_NAME }}:latest
+          docker tag coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION }} rishabh0197/${{ env.APP_NAME }}:${{ env.TAG }}
+          docker tag coredge/${{ env.APP_NAME }}:${{ env.APP_VERSION }} rishabh0197/${{ env.APP_NAME }}:latest
 
           docker push rishabh0197/${{ env.APP_NAME }}:${{ env.TAG }}
           docker push rishabh0197/${{ env.APP_NAME }}:latest
