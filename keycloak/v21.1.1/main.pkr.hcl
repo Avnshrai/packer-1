@@ -1,4 +1,4 @@
-## HCL Packer file for Keycloak ##
+### HCL Packer file for Keycloak ##
 packer {
   required_plugins {
     docker = {
