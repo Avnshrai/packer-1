@@ -71,7 +71,7 @@ jobs:
       - name: ⬆ Upload Trivy Image scan results
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: Grafana_Trivy_Scan_HTML_Report
+          name: Keycloak-Trivy-Scan-HTML-Report
           path: '${{ env.APP_NAME }}-${{ env.APP_VERSION }}-trivy-results.html'
       
       - name: Prepare image tag
