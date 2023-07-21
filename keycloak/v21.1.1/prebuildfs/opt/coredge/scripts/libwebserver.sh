@@ -2,7 +2,7 @@
 # Copyright Coredge, Inc.
 # SPDX-License-Identifier: APACHE-2.0
 #
-# Bitnami web server handler library
+# Coredge web server handler library
 
 # shellcheck disable=SC1090,SC1091
 

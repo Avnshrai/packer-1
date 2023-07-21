@@ -406,7 +406,7 @@ generate_systemd_conf() {
 # SPDX-License-Identifier: APACHE-2.0
 
 [Unit]
-Description=Bitnami service for ${name}
+Description=Coredge service for ${name}
 # Starting/stopping the main coredge service should cause the same effect for this service
 PartOf=coredge.service
 

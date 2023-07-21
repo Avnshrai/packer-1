@@ -1,5 +1,4 @@
 #!/bin/bash
-# Copyright VMware, Inc.
 # SPDX-License-Identifier: APACHE-2.0
 
 # shellcheck disable=SC1091

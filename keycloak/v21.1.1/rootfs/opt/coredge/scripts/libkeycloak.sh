@@ -1,8 +1,6 @@
 #!/bin/bash
-# Copyright VMware, Inc.
 # SPDX-License-Identifier: APACHE-2.0
 #
-# Bitnami Keycloak library
 
 # shellcheck disable=SC1090,SC1091
 

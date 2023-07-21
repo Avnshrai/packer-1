@@ -2,7 +2,6 @@
 # Copyright Coredge, Inc.
 # SPDX-License-Identifier: APACHE-2.0
 #
-# Bitnami custom library
 
 # shellcheck disable=SC1091
 
@@ -33,7 +32,7 @@ print_welcome_page() {
 }
 
 ########################
-# Print the welcome page for a Bitnami Docker image
+# Print the welcome page for a Coredge Docker image
 # Globals:
 #   COREDGE_APP_NAME
 # Arguments:
@@ -44,7 +43,7 @@ print_welcome_page() {
 print_image_welcome_page() {
 
     log ""
-    log "${BOLD}Welcome to the Bitnami ${COREDGE_APP_NAME} container${RESET}"
+    log "${BOLD}Welcome to the Coredge ${COREDGE_APP_NAME} container${RESET}"
     log ""
 }
 
